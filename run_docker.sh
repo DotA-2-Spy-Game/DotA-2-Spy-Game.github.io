@@ -1,31 +1,21 @@
 #!/bin/bash
 
-# Получаем абсолютный путь к директории проекта
-PROJECT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+# Simple script to run the Dota 2 Spy Game using Docker
+# This script builds and starts the Docker container with the game
 
-# Создаем временный docker-compose файл с правильными путями
-TEMP_COMPOSE=$(mktemp)
-cat > "$TEMP_COMPOSE" << EOF
-version: '3.8'
+echo "Starting Dota 2 Spy Game..."
+echo "The application will be available at http://localhost:8080"
 
-services:
-  web:
-    build: .
-    ports:
-      - "8080:80"
-    volumes:
-      - ./dota-spy-game:/usr/share/nginx/html:ro
-    restart: unless-stopped
-    environment:
-      - NGINX_HOST=localhost
-      - NGINX_PORT=80
-EOF
+# Build and start the container using docker-compose
+docker-compose up -d --build
 
-# Сохраняем временный файл для использования с docker-compose
-cp "$TEMP_COMPOSE" ./docker-compose-tmp.yml
-
-# Запускаем docker-compose с временным файлом
-docker-compose -f docker-compose-tmp.yml up -d
-
-# Удаляем временный файл
-rm ./docker-compose-tmp.yml
+if [ $? -eq 0 ]; then
+    echo ""
+    echo "✅ Dota 2 Spy Game is now running!"
+    echo "🌐 Open your browser and go to: http://localhost:8080"
+    echo ""
+    echo "💡 To stop the game, run: docker-compose down"
+else
+    echo "❌ Error starting the game. Please check Docker and docker-compose are installed."
+    exit 1
+fi

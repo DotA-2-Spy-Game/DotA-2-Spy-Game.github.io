@@ -146,13 +146,6 @@
 
                 // Try alternative URL formats
                 const originalName = heroName;
-                const nameVariations = {
-                    'shadow-fiend': 'nevermore',
-                    'wraith-king': 'skeleton-king',
-                    "nature's-prophet": 'furion'
-                };
-
-                let cdnHeroName = nameVariations[originalName] ? nameVariations[originalName] : originalName;
 
                 const fallbacks = [
                     // Try underscore format on primary CDN

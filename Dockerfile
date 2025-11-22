@@ -1,16 +1,22 @@
+# Use the latest nginx alpine image for smaller size
 FROM nginx:alpine
 
-# Удаляем дефолтные файлы nginx
-RUN rm -rf /usr/share/nginx/html/*
-
-# Копируем файлы проекта в директорию nginx
-COPY dota-spy-game/ /usr/share/nginx/html/
-
-# Копируем конфигурацию nginx
+# Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/nginx.conf
 
-# Открываем порт 80
+# Create directory and copy application files
+RUN rm -rf /usr/share/nginx/html/*
+COPY dota-spy-game/ /usr/share/nginx/html/
+
+# Health check to ensure container is running properly
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD curl -f http://localhost/ || exit 1
+
+# Expose port 80
 EXPOSE 80
 
-# Запускаем nginx
+# Set non-root user for security (nginx runs as nginx user by default in alpine)
+USER nginx
+
+# Start nginx
 CMD ["nginx", "-g", "daemon off;"]

@@ -1,0 +1,17 @@
+[build]
+  publish = "dota-spy-game"
+  command = "cp index.html dota-spy-game/ || true"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+[context.production]
+  command = "cp index.html dota-spy-game/ || true"
+
+[context.deploy-preview]
+  command = "cp index.html dota-spy-game/ || true"
+
+[context.branch-deploy]
+  command = "cp index.html dota-spy-game/ || true"

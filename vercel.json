@@ -1,0 +1,16 @@
+{
+  "public": true,
+  "builds": [
+    {
+      "src": "dota-spy-game/**/*",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/dota-spy-game/$1",
+      "status": 200
+    }
+  ]
+}

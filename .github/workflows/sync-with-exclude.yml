@@ -2,7 +2,7 @@ name: Sync from Friend (keep .github/workflows)
 
 on:
   schedule:
-    - cron: '0 0 * * *'  # ежедневно
+    - cron: '0 0 * * *'
   workflow_dispatch:
 
 jobs:
@@ -17,34 +17,39 @@ jobs:
       - name: Backup your .github/workflows
         run: |
           mkdir -p /tmp/backup
-          cp -r .github/workflows /tmp/backup/ || echo "No workflows to backup"
+          if [ -d ".github/workflows" ]; then
+            cp -r .github/workflows /tmp/backup/
+          fi
 
-      - name: Clean workspace (except .git)
+      - name: Clean all files except .git
         run: |
-          shopt -s dotglob
-          rm -rf !( .git )
+          # Удаляем всё, кроме .git
+          find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
 
       - name: Checkout friend's repo
         uses: actions/checkout@v4
         with:
           repository: Wladisl4W/PROJECT_DotA-2-Spy-Game
           path: friend-repo
-          token: ${{ secrets.GITHUB_TOKEN }}  # для публичного репо можно и без токена
 
       - name: Copy all files from friend
         run: |
-          shopt -s dotglob
           cp -r friend-repo/* .
+          cp -r friend-repo/.[^.]* . 2>/dev/null || true  # скрытые файлы (.gitignore и т.д.)
 
       - name: Restore your .github/workflows
         run: |
           mkdir -p .github
-          cp -r /tmp/backup/workflows .github/ || echo "No workflows to restore"
+          if [ -d "/tmp/backup/workflows" ]; then
+            cp -r /tmp/backup/workflows .github/
+          fi
 
       - name: Commit and push
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
-          git status
-          git diff --quiet && git diff --staged --quiet || (git commit -m "Sync from friend's repo (keep workflows)" && git push)
+          if ! git diff --quiet || ! git diff --staged --quiet; then
+            git commit -m "Sync from friend's repo (keep workflows)"
+            git push
+          fi

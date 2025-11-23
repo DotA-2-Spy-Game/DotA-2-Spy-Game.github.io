@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DotA 2: Игра в шпиона</title>
-    <link rel="stylesheet" href="dota-spy-game/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
     <div class="container">
@@ -59,13 +59,17 @@
             <section id="game-started-screen" class="screen hidden">
                 <div class="game-started">
                     <h2>Игра началась!</h2>
-                    <p>Теперь вы знаете свой персонаж. Найдите шпиона!</p>
+                    <p>Теперь вы знаете персонажа. Найдите шпиона!</p>
                     <button id="resetGameBtn" class="btn">Новая игра</button>
                 </div>
             </section>
         </main>
     </div>
 
-    <script src="dota-spy-game/js/script.js"></script>
+    <script src="js/script.js"></script>
+
+    <footer style="position: fixed; bottom: 15px; width: 100%; text-align: center; color: #666; font-size: 0.75rem; z-index: 10; opacity: 0.7; padding: 5px 0;">
+        <p>Если нашли баг или есть предложение — напишите <a href="https://github.com/Wladisl4W/PROJECT_DotA-2-Spy-Game/issues" target="_blank" style="color: #f04a26; text-decoration: underline;">здесь</a></p>
+    </footer>
 </body>
 </html>

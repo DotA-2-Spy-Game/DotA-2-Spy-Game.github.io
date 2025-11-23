@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест DotA 2 Spy Game</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #0a0a0a;
+            color: white;
+        }
+        .test-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        .test-result {
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+        }
+        .success {
+            background: rgba(0, 128, 0, 0.2);
+            border: 1px solid green;
+        }
+        .error {
+            background: rgba(128, 0, 0, 0.2);
+            border: 1px solid red;
+        }
+        .warning {
+            background: rgba(255, 165, 0, 0.2);
+            border: 1px solid orange;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #444;
+            border-radius: 5px;
+        }
+        .test-section h3 {
+            margin-top: 0;
+            color: #f04a26;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>Тест DotA 2 Spy Game</h1>
+        <p>Проверка загрузки и инициализации модулей:</p>
+        <div id="test-results"></div>
+        <div id="functional-tests"></div>
+    </div>
+
+    <script>
+        function runTests() {
+            const results = document.getElementById('test-results');
+
+            // Проверяем наличие классов
+            const tests = [
+                { name: 'GameState', check: () => typeof window.GameState !== 'undefined' },
+                { name: 'CharacterManager', check: () => typeof window.CharacterManager !== 'undefined' },
+                { name: 'UIManager', check: () => typeof window.UIManager !== 'undefined' },
+                { name: 'main.js инициализация', check: () =>
+                    window.gameState !== undefined &&
+                    window.characterManager !== undefined &&
+                    window.uiManager !== undefined
+                }
+            ];
+
+            tests.forEach(test => {
+                const result = document.createElement('div');
+                result.className = 'test-result';
+
+                if (test.check()) {
+                    result.classList.add('success');
+                    result.textContent = `✓ ${test.name} - ПАСС`;
+                } else {
+                    result.classList.add('error');
+                    result.textContent = `✗ ${test.name} - ОШИБКА`;
+                }
+
+                results.appendChild(result);
+            });
+        }
+
+        function runFunctionalTests() {
+            const functionalTests = document.getElementById('functional-tests');
+
+            const section = document.createElement('div');
+            section.className = 'test-section';
+            section.innerHTML = '<h3>Функциональные тесты</h3>';
+
+            let sectionResults = '';
+
+            // Тестирование CharacterManager
+            if (typeof window.CharacterManager !== 'undefined') {
+                try {
+                    const characterManager = new CharacterManager();
+                    const characters = characterManager.getCharacters();
+
+                    if (Array.isArray(characters) && characters.length > 0) {
+                        sectionResults += `<div class="test-result success">✓ Список персонажей: ${characters.length} героев</div>`;
+                    } else {
+                        sectionResults += `<div class="test-result error">✗ Список персонажей пуст или не массив</div>`;
+                    }
+
+                    // Тестирование получения изображения
+                    const testCharacter = 'pudge';
+                    const imgSrc = characterManager.getCharacterImageSrc(testCharacter);
+                    if (imgSrc && imgSrc.includes(testCharacter)) {
+                        sectionResults += `<div class="test-result success">✓ Генерация URL изображения для ${testCharacter}</div>`;
+                    } else {
+                        sectionResults += `<div class="test-result error">✗ Ошибка генерации URL изображения для ${testCharacter}</div>`;
+                    }
+
+                    // Тестирование специальных вариаций
+                    const specialVariations = characterManager.getSpecialNameVariations('shadow-fiend');
+                    if (Array.isArray(specialVariations) && specialVariations.length > 0) {
+                        sectionResults += `<div class="test-result success">✓ Специальные вариации названий: ${specialVariations.length} вариантов</div>`;
+                    } else {
+                        sectionResults += `<div class="test-result warning">! Нет специальных вариаций названий для теста</div>`;
+                    }
+
+                    // Тестирование генерации fallback-ссылок
+                    const fallbacks = characterManager.generateFallbacks('pudge');
+                    if (Array.isArray(fallbacks) && fallbacks.length > 0) {
+                        sectionResults += `<div class="test-result success">✓ Генерация fallback-ссылок: ${fallbacks.length} вариантов</div>`;
+                    } else {
+                        sectionResults += `<div class="test-result error">✗ Ошибка генерации fallback-ссылок</div>`;
+                    }
+
+                } catch (e) {
+                    sectionResults += `<div class="test-result error">✗ Ошибка при тестировании CharacterManager: ${e.message}</div>`;
+                }
+            } else {
+                sectionResults += `<div class="test-result error">✗ CharacterManager не найден</div>`;
+            }
+
+            // Тестирование GameState
+            if (typeof window.GameState !== 'undefined') {
+                try {
+                    const gameState = new GameState();
+
+                    if (gameState.players !== undefined &&
+                        gameState.spyIndex !== undefined &&
+                        gameState.selectedCharacter !== undefined &&
+                        gameState.currentPlayer !== undefined) {
+                        sectionResults += `<div class="test-result success">✓ Инициализация GameState</div>`;
+                    } else {
+                        sectionResults += `<div class="test-result error">✗ Ошибка инициализации GameState</div>`;
+                    }
+
+                    // Тестирование получения персонажей через GameState
+                    const characters = gameState.getCharacters(window.characterManager || null);
+                    if (Array.isArray(characters) && characters.length > 0) {
+                        sectionResults += `<div class="test-result success">✓ Получение персонажей через GameState: ${characters.length} героев</div>`;
+                    } else {
+                        sectionResults += `<div class="test-result error">✗ Ошибка получения персонажей через GameState</div>`;
+                    }
+
+                } catch (e) {
+                    sectionResults += `<div class="test-result error">✗ Ошибка при тестировании GameState: ${e.message}</div>`;
+                }
+            } else {
+                sectionResults += `<div class="test-result error">✗ GameState не найден</div>`;
+            }
+
+            // Тестирование UIManager
+            if (typeof window.UIManager !== 'undefined') {
+                sectionResults += `<div class="test-result success">✓ UIManager загружен</div>`;
+            } else {
+                sectionResults += `<div class="test-result error">✗ UIManager не найден</div>`;
+            }
+
+            section.innerHTML += sectionResults;
+            functionalTests.appendChild(section);
+        }
+
+        // Ждем полной загрузки всех скриптов
+        window.addEventListener('load', function() {
+            // Задержка для полной загрузки
+            setTimeout(() => {
+                runTests();
+                runFunctionalTests();
+            }, 500);
+        });
+    </script>
+
+    <!-- Загружаем все скрипты -->
+    <script src="js/gameState.js"></script>
+    <script src="js/characters.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

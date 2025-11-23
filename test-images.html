@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Тест Dota 2 Hero Images</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f0f0f0;
+        }
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .hero-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .hero-image {
+            width: 80px;
+            height: 80px;
+            object-fit: contain;
+            margin-right: 15px;
+            border: 1px solid #ccc;
+        }
+        .hero-name {
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .status {
+            margin-left: 10px;
+            font-size: 14px;
+            color: #666;
+        }
+        .image-missing {
+            background-color: #ffe6e6;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Тест Dota 2 Hero Images</h1>
+        <p>Эта страница показывает все герои Dota 2 с их изображениями. Использует ту же логику, что и основная игра.</p>
+        <div id="hero-list"></div>
+    </div>
+
+    <!-- Загружаем CharacterManager для использования общего кода -->
+    <script src="js/characters.js"></script>
+    <script>
+        // Ждем загрузки CharacterManager
+        document.addEventListener('DOMContentLoaded', function() {
+            // Создаем экземпляр CharacterManager для использования общих методов
+            const charManager = new CharacterManager();
+            const dotaCharacters = charManager.getCharacters();
+            const heroList = document.getElementById('hero-list');
+
+            dotaCharacters.forEach(heroName => {
+                // Create container for hero item
+                const heroItem = document.createElement('div');
+                heroItem.className = 'hero-item';
+
+                // Get image source using CharacterManager methods
+                const imgSrc = charManager.getCharacterImageSrc(heroName);
+
+                // Create image element
+                const img = document.createElement('img');
+                img.className = 'hero-image';
+                img.src = imgSrc;
+                img.alt = charManager.getCharacterDisplayName(heroName);
+
+                // Create name element
+                const nameDiv = document.createElement('div');
+                nameDiv.className = 'hero-name';
+                nameDiv.textContent = charManager.getCharacterDisplayName(heroName);
+
+                // Create status element
+                const status = document.createElement('div');
+                status.className = 'status';
+                status.textContent = 'Загрузка...';
+
+                // Add elements to container
+                heroItem.appendChild(img);
+                heroItem.appendChild(nameDiv);
+                heroItem.appendChild(status);
+
+                // Add container to list
+                heroList.appendChild(heroItem);
+
+                // Check if image loads
+                img.onload = function() {
+                    status.textContent = '✓';
+                    status.style.color = 'green';
+                };
+
+                // Use CharacterManager's error handling for fallbacks
+                charManager.setCharacterImageErrorHandling(img, heroName);
+
+                // Override the error handling to update the status
+                const originalOnError = img.onerror;
+                img.onerror = function() {
+                    status.textContent = 'Проверка fallback...';
+                    status.style.color = 'orange';
+
+                    // After trying fallbacks, update status again
+                    setTimeout(() => {
+                        if (this.src.includes('data:image/svg+xml')) {
+                            status.textContent = '✗ (SVG)';
+                            status.style.color = 'red';
+                            heroItem.classList.add('image-missing');
+                        } else {
+                            // Проверяем, если это уже SVG - тогда помечаем как ошибку
+                            status.textContent = 'fallback...';
+                        }
+                    }, 100);
+
+                    // Вызываем оригинальную обработку ошибок
+                    originalOnError.call(this);
+                };
+            });
+        });
+    </script>
+</body>
+</html>

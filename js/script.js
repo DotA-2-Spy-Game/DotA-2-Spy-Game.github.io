@@ -11,7 +11,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Timers for animations
     let flipTimer = null;
     let showNextButtonTimer = null;
-    
+
     // DotA 2 characters list
     const dotaCharacters = [
         'abaddon', 'alchemist', 'ancient-apparition', 'anti-mage', 'arc-warden', 'axe', 'bane', 'batrider',
@@ -30,7 +30,7 @@ document.addEventListener('DOMContentLoaded', function() {
         'tusk', 'underlord', 'undying', 'ursa', 'vengeful-spirit', 'venomancer', 'viper', 'visage', 'void-spirit',
         'warlock', 'weaver', 'windranger', 'winter-wyvern', 'witch-doctor', 'wraith-king', 'zeus'
     ];
-    
+
     // DOM Elements
     const playerCountSlider = document.getElementById('playerCountSlider');
     const playerCountDisplay = document.getElementById('playerCountDisplay');
@@ -52,31 +52,31 @@ document.addEventListener('DOMContentLoaded', function() {
         playerCountSlider.value = parseInt(savedPlayerCount);
         playerCountDisplay.textContent = savedPlayerCount;
     }
-    
+
     // Player count screen elements
     const playerCountScreen = document.getElementById('player-count-screen');
     const cardScreen = document.getElementById('card-screen');
     const gameStartedScreen = document.getElementById('game-started-screen');
-    
+
     // Update player count display when slider changes
     playerCountSlider.addEventListener('input', function() {
         playerCountDisplay.textContent = this.value;
         // Save the value to localStorage
         localStorage.setItem('playerCount', this.value);
     });
-    
+
     // Start game button click event
     startGameBtn.addEventListener('click', function() {
         const playerCount = parseInt(playerCountSlider.value);
         initializeGame(playerCount);
         showCardScreen();
     });
-    
+
     // Card front click event (to reveal character)
     cardFront.addEventListener('click', function() {
         revealCharacter();
     });
-    
+
     // Next player button click event
     nextPlayerBtn.addEventListener('click', function() {
         // Clear the button timer to prevent conflicts
@@ -95,33 +95,33 @@ document.addEventListener('DOMContentLoaded', function() {
             startGameFinalBtn.classList.remove('disabled');
         }
     });
-    
+
     // Final start game button click event
     startGameFinalBtn.addEventListener('click', function() {
         // Move to next player (which should be beyond the last player)
         gameState.currentPlayer++;
         showGameStartedScreen();
     });
-    
+
     // Reset game button click event
     resetGameBtn.addEventListener('click', function() {
         resetGame();
     });
-    
+
     // Initialize the game
     function initializeGame(playerCount) {
         gameState.players = Array.from({length: playerCount}, (_, i) => i);
-        
+
         // Randomly select spy
         gameState.spyIndex = Math.floor(Math.random() * playerCount);
-        
+
         // Randomly select character
         const randomIndex = Math.floor(Math.random() * dotaCharacters.length);
         gameState.selectedCharacter = dotaCharacters[randomIndex];
-        
+
         gameState.currentPlayer = 0;
     }
-    
+
     // Reveal character on the card
     function revealCharacter() {
         // Check if card is already revealed to prevent multiple clicks
@@ -183,14 +183,23 @@ document.addEventListener('DOMContentLoaded', function() {
         characterImage.style.maxHeight = '320px';
         characterImage.style.borderRadius = '4px';
 
+        // Debug: log the image properties
+        console.log('Image properties set:', {
+            src: characterImage.src,
+            display: characterImage.style.display,
+            alt: characterImage.alt
+        });
+
         // Set error handler for character images (not needed for spy SVG)
+        // Create a closure to capture gameState.selectedCharacter
+        const selectedCharacter = gameState.selectedCharacter;
         characterImage.onerror = function() {
             // Initialize fallback counter on the image element if it doesn't exist
             if (typeof this.fallbackAttempt === 'undefined') {
                 this.fallbackAttempt = 0;
             }
 
-            const originalName = gameState.selectedCharacter;
+            const originalName = selectedCharacter;  // Use captured variable
 
             // Define multiple fallback sources and naming conventions to try
             const fallbacks = [
@@ -286,7 +295,7 @@ document.addEventListener('DOMContentLoaded', function() {
             }, 300);
         }, 100);
     }
-    
+
     // Reset card for next player
     function resetCard() {
         // Clear timers to prevent conflicts
@@ -326,8 +335,8 @@ document.addEventListener('DOMContentLoaded', function() {
         characterImage.onerror = null; // Remove error handler
         characterName.textContent = '';
     }
-    
-    
+
+
     // Show card screen
     function showCardScreen() {
         playerCountScreen.classList.add('hidden');
@@ -344,7 +353,7 @@ document.addEventListener('DOMContentLoaded', function() {
         nextPlayerBtn.classList.add('disabled'); // Keep button disabled initially
         startGameFinalBtn.classList.add('hidden');
     }
-    
+
     // Show game started screen
     function showGameStartedScreen() {
         playerCountScreen.classList.add('hidden');
@@ -359,7 +368,7 @@ document.addEventListener('DOMContentLoaded', function() {
         nextPlayerBtn.classList.add('hidden');
         startGameFinalBtn.classList.add('hidden');
     }
-    
+
     // Reset game to initial state
     function resetGame() {
         // Clear timers to prevent conflicts

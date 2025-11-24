@@ -23,7 +23,6 @@ jobs:
 
       - name: Clean all files except .git
         run: |
-          # Удаляем всё, кроме .git
           find . -mindepth 1 -maxdepth 1 ! -name '.git' -exec rm -rf {} +
 
       - name: Checkout friend's repo
@@ -32,10 +31,15 @@ jobs:
           repository: Wladisl4W/PROJECT_DotA-2-Spy-Game
           path: friend-repo
 
+      - name: Remove .git from friend's repo (to avoid submodule)
+        run: |
+          rm -rf friend-repo/.git
+
       - name: Copy all files from friend
         run: |
           cp -r friend-repo/* .
-          cp -r friend-repo/.[^.]* . 2>/dev/null || true  # скрытые файлы (.gitignore и т.д.)
+          # Копируем скрытые файлы (кроме .git)
+          cp -r friend-repo/.[^.]* . 2>/dev/null || true
 
       - name: Restore your .github/workflows
         run: |
@@ -49,6 +53,8 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add .
+          # Убедимся, что friend-repo не остался в индексе
+          git rm -rf --cached friend-repo 2>/dev/null || true
           if ! git diff --quiet || ! git diff --staged --quiet; then
             git commit -m "Sync from friend's repo (keep workflows)"
             git push
